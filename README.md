@@ -1,7 +1,7 @@
 # oci-tools
 
 ## Purpose
-The purpose of this Python Script(CollectInstances.py & CollectPublicIPs.py) is trying to collect all those instances shape information and public IP addresses for the tenancy.
+The purpose of this Python Script(CollectInstances.py & CollectPublicIPs.py) is trying to collect all those instances shape information and public IP addresses for Oracle Cloud Infrastructure(OCI) tenancy.
 
 
 ## How to use these scripts
