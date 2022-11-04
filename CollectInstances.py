@@ -64,10 +64,10 @@ clientConfigList = []
 
 def initClientContext():
     # Init OCI context
-    # Make sure that the default profile exist: ./oci/config [DEFAULT]
+    # Make sure that the default profile exist: ~/.oci/config [DEFAULT]
     defaultProfile="DEFAULT"
 
-    # Load the DEFAULT profile from file: ./oci/config
+    # Load the DEFAULT profile from file: ~/.oci/config
     config = oci.config.from_file(profile_name=defaultProfile)
 
     # List all the DEFAULT profile parameter values
