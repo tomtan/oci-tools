@@ -8,49 +8,45 @@ The purpose of this Python Script(CollectInstances.py & CollectPublicIPs.py & Co
 
 - Collect total instances information of tenancy with filtering by the compartments:
 
-```python CollectInstances.py -a ti -c <compartment1> <compartment2>```
+	```python CollectInstances.py -a ti -c <compartment1> <compartment2>```
 
 - Collect compute, mysql and dbcs intances information with filtering by the compartments:
 
-```python CollectInstances.py -a ci mi di -c <compartment1> <compartment2>```
+	```python CollectInstances.py -a ci mi di -c <compartment1> <compartment2>```
 
 - Collect those public IP addresses of OCI tenancy with specified compartments:
 
-```python CollectPublicIPs.py -c <compartment>```
+	```python CollectPublicIPs.py -c <compartment>```
 
 - Collect those private IP addresses of OCI tenany with some specified parameters:
-```
-# The following command is trying to collect the private IP addresses 
-# with specified Region & Compartment & VCN Display Name & Subnet CIDR Blocks.
+	```
+	# The following command is trying to collect the private IP addresses 
+	# with specified Region & Compartment & VCN Display Name & Subnet CIDR Blocks.
 
-python CollectPrivateIPs.py -r ap-tokyo-1 -c SPECIALLIST2 -vn SDWAN -sc 10.210.0.0/24
+	python CollectPrivateIPs.py -r ap-tokyo-1 -c SPECIALLIST2 -vn SDWAN -sc 10.210.0.0/24
 
-```
+	```
 
 
 ## Command outputs: 
 There may output 4 csv files when run on the script `CollectInstances.py` :
-> (1) compute-instances_< timestamp >.csv - for storing compute instances
-Compute Instances shape information as following: 
+> (1) compute-instances_< timestamp >.csv - for storing compute instances as following columns: 
 
-Name | Status | OCPUs | RAM(GBs) | Shape | Compartment | Region
-
-
-> (2) adb-instances_< timestamp >.csv - for storing Autonomous DB instances
-Autonomouse Database Instances(ADB) shape information as following columns: 
-
-Name | Status | OCPUs | Storage | Workload | Version | Compartment | Region
-
-> (3) dbcs-instances_< timestamp >.csv - for storing DBCS instances
-Oracle Base Database Instances(DBCS) shape information as following columns: 
-
-Name | Status | OCPUs | Storage | Shape | Edition | Version | Compartment | Region
+> Name | Status | OCPUs | RAM(GBs) | Shape | Compartment | Region
 
 
-> (4) mysql-instances_< timestamp >.csv - for storing MySQL instances
-MySQL Database Service Instances shape information as following columns:
+> (2) adb-instances_< timestamp >.csv - for storing Autonomous DB instances as following columns: 
 
-Name | Status | OCPUs | RAM(GBs) | Shape | Version | IsHA | Compartment| Region
+> Name | Status | OCPUs | Storage | Workload | Version | Compartment | Region
+
+> (3) dbcs-instances_< timestamp >.csv - for storing DBCS instances as following columns: 
+
+> Name | Status | OCPUs | Storage | Shape | Edition | Version | Compartment | Region
+
+
+> (4) mysql-instances_< timestamp >.csv - for storing MySQL instances  as following columns:
+
+> Name | Status | OCPUs | RAM(GBs) | Shape | Version | IsHA | Compartment| Region
 
 > For example - mysql-instances_< timestamp >.csv, you will see the content like the following table:
 
@@ -61,17 +57,15 @@ Name | Status | OCPUs | RAM(GBs) | Shape | Version | IsHA | Compartment| Region
 
 There will output 1 csv file when run on the script `CollectPublicIPs.py`:
 
-> (1) public-ip-list_< timestamp >.csv - for storing Public IP addresses
+> (1) public-ip-list_< timestamp >.csv - for storing Public IP addresses as following columns: 
 
-
-ip_address | region | compartment | entity_type | lifecycle_state | lifetime | scope | vcn_name | cidr_blocks
+> ip_address | region | compartment | entity_type | lifecycle_state | lifetime | scope | vcn_name | cidr_blocks
 
 There will output 1 csv file when run on the script `CollectPrivateIPs.py`:
 
-> (1) private-ip-list_< timestamp >.csv - for storing Private IP addresses
+> (1) private-ip-list_< timestamp >.csv - for storing Private IP addresses as following columns: 
 
-
- Region | Compartment | VCN | VCN-cidr-blocks | Subnet | Subnet-cird-blocks | IP
+ > Region | Compartment | VCN | VCN-cidr-blocks | Subnet | Subnet-cird-blocks | IP
 
 
 ## Setup the running environment
