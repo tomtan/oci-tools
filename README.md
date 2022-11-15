@@ -32,23 +32,27 @@ The purpose of this Python Script(CollectInstances.py & CollectPublicIPs.py & Co
 There may output 4 csv files when run on the script `CollectInstances.py` :
 > (1) compute-instances_< timestamp >.csv - for storing compute instances as following columns: 
 
-> Name | Status | OCPUs | RAM(GBs) | Shape | Compartment | Region
+> | Name | Status | OCPUs | RAM(GBs) | Shape | Boot Volume | Block Volumes | Compartment | Region |
 
+> Sample Data:
+	test, TERMINATED, 1, 6, VM.Standard.A1.Flex, 47(gb)-10(pu), 100(gb)-10(pu) & 100(gb)-10(pu), A > B > C, eu-amsterdam-1
 
 > (2) adb-instances_< timestamp >.csv - for storing Autonomous DB instances as following columns: 
 
 > Name | Status | OCPUs | Storage | Workload | Version | Compartment | Region
 
+> Sample Data:
+    DB202110190731, STOPPED, 1, 1024, DW, 19c, A > B, ap-seoul-1
+
 > (3) dbcs-instances_< timestamp >.csv - for storing DBCS instances as following columns: 
 
 > Name | Status | OCPUs | Storage | Shape | Edition | Version | Compartment | Region
-
 
 > (4) mysql-instances_< timestamp >.csv - for storing MySQL instances  as following columns:
 
 > Name | Status | OCPUs | RAM(GBs) | Shape | Version | IsHA | Compartment| Region
 
-> For example - mysql-instances_< timestamp >.csv, you will see the content like the following table:
+> For example - mysql-instances_< timestamp >.csv, you will see the collection sample data like the following table:
 
 | Name | Status | OCPUs | RAM(GBs) | Shape | Version | IsHA | Compartment| Region |
 |---|---|---|---|---|---|---|---|---|
