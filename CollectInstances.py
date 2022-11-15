@@ -64,10 +64,10 @@ clientConfigList = []
 
 def initClientContext():
     # Init OCI context
-    # Make sure that the default profile exist: ~/.oci/config [DEFAULT]
+    # Make sure that the default profile exist: ./oci/config [DEFAULT]
     defaultProfile="DEFAULT"
 
-    # Load the DEFAULT profile from file: ~/.oci/config
+    # Load the DEFAULT profile from file: ./oci/config
     config = oci.config.from_file(profile_name=defaultProfile)
 
     # List all the DEFAULT profile parameter values
@@ -181,14 +181,17 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
     filePath = "{}_{}.csv".format(prefix, suffix)
     instancesCsvFile = open(filePath, "a+")
 
-    instancesCsvFile.write(f"Name, Status, OCPUs, RAM(GBs),Shape, Compartment, Region\n")
+    instancesCsvFile.write(f"Name, Status, OCPUs, RAM(GBs),Shape, Boot Volume, Block Volumes, Compartment, Region\n")
     # Loop every client config then 
     for clientConfig in clientConfigList:
         currentRegion = clientConfig["region"]
         oci.config.validate_config(clientConfig)
+
+        print("I'm here >>> ", currentRegion)
         
         #config = oci.config.from_file(profile_name=defaultProfile)
         computeClient = oci.core.ComputeClient(clientConfig)
+        blockStorageClient = oci.core.BlockstorageClient(clientConfig)
         
         for compartment in totalCompartments:
             currentCompartmentName = compartment.fullname
@@ -203,13 +206,57 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
             #print("Region: {}, Compartment: {}, Number of Instances: {}".format(currentRegion, currentCompartmentName, len(instanceList)))
             for instance in instanceList:
                 #print(instance)
+                instanceId = instance.id
+                instanceAd = instance.availability_domain
+
+                bootVolumeDesc = ""
+                bootVolumes = computeClient.list_boot_volume_attachments(availability_domain=instanceAd,compartment_id=currentCompartmentId,instance_id=instanceId).data
+                if bootVolumes:
+                    bvId = bootVolumes[0].boot_volume_id
+                    try:
+                        bootVolume = blockStorageClient.get_boot_volume(boot_volume_id=bvId).data
+                        bootVolumeSize = bootVolume.size_in_gbs 
+                        bootVolumeVPUs = bootVolume.vpus_per_gb
+                        bootVolumeDesc = "{}(gb)-{}(pu)".format(bootVolumeSize, bootVolumeVPUs)
+                    except:
+                        print(">>>BootVolume Error:", bootVolumes)
+
+                blockVolumeList = []
+                blockVolumes = computeClient.list_volume_attachments(availability_domain=instanceAd,compartment_id=currentCompartmentId,instance_id=instanceId).data
+                if blockVolumes:
+                    for blv in blockVolumes:
+                        #print(blv)
+                        volumeId = blv.volume_id
+                        try:
+                            blockVolume = None
+                            if volumeId.count('bootvolume') > 0:
+                                blockVolume = blockStorageClient.get_boot_volume(boot_volume_id=volumeId).data
+                            else:
+                                blockVolume = blockStorageClient.get_volume(volume_id=volumeId).data
+
+                            if blockVolume:
+                                blockVolumeSize = blockVolume.size_in_gbs 
+                                blockVolumeVPUs = blockVolume.vpus_per_gb
+                                blockVolumeDesc = "{}(gb)-{}(pu)".format(blockVolumeSize, blockVolumeVPUs)
+                                blockVolumeList.append(blockVolumeDesc)
+                        except:
+                            print(">>>Error in BlockVolume [ %s ]" % volumeId)
+                
+                blockVolumes = ""
+                if blockVolumeList:
+                    if len(blockVolumeList) == 1:
+                        blockVolumes = blockVolumeList[0]
+                    else:
+                        blockVolumes = " & ".join(blockVolumeList)
+                
+
                 state = instance.lifecycle_state
                 displayName = instance.display_name
                 shapeConfig = instance.shape_config
                 ocpus = shapeConfig.ocpus
                 ram = shapeConfig.memory_in_gbs
                 shape = instance.shape
-                instancesCsvFile.write(f"{displayName},{state},{ocpus},{ram},{shape},{currentCompartmentName},{currentRegion}\n")
+                instancesCsvFile.write(f"{displayName},{state},{ocpus},{ram},{shape},{bootVolumeDesc},{blockVolumes},{currentCompartmentName},{currentRegion}\n")
                 instancesCsvFile.flush()
             
     # close csv file
@@ -228,6 +275,8 @@ def collectAdbInstances(clientConfigList, chckCompartmentList, suffix):
     for clientConfig in clientConfigList:
         currentRegion = clientConfig["region"]
         oci.config.validate_config(clientConfig)
+
+        print("I'm here >>> ", currentRegion)
         
         #config = oci.config.from_file(profile_name=defaultProfile)
         databaseClient = oci.database.DatabaseClient(clientConfig)
@@ -275,6 +324,8 @@ def collectDBCSInstances(clientConfigList, chckCompartmentList, suffix):
     for clientConfig in clientConfigList:
         currentRegion = clientConfig["region"]
         oci.config.validate_config(clientConfig)
+
+        print("I'm here >>> ", currentRegion)
         
         #config = oci.config.from_file(profile_name=defaultProfile)
         databaseClient = oci.database.DatabaseClient(clientConfig)
@@ -321,6 +372,8 @@ def collectMySQLInstances(clientConfigList, chckCompartmentList, suffix):
     for clientConfig in clientConfigList:
         currentRegion = clientConfig["region"]
         oci.config.validate_config(clientConfig)
+
+        print("I'm here >>> ", currentRegion)
         
         #config = oci.config.from_file(profile_name=defaultProfile)
         mysqlClient = oci.mysql.DbSystemClient(clientConfig)
