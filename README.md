@@ -41,7 +41,7 @@ There may output 4 csv files when run on the script `CollectInstances.py` :
 
 > Name | Status | OCPUs | Storage | Workload | Version | Compartment | Region
 
-> Sample Data:
+> Sample Data: 
     DB202110190731, STOPPED, 1, 1024, DW, 19c, A > B, ap-seoul-1
 
 > (3) dbcs-instances_< timestamp >.csv - for storing DBCS instances as following columns: 

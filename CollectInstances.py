@@ -181,7 +181,7 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
     filePath = "{}_{}.csv".format(prefix, suffix)
     instancesCsvFile = open(filePath, "a+")
 
-    instancesCsvFile.write(f"Name, Status, OCPUs, RAM(GBs),Shape, Boot Volume, Block Volumes, Compartment, Region\n")
+    instancesCsvFile.write(f"Name, Status, OCPUs, RAM(GBs),Shape, Boot Volume, Block Volumes, Compartment, Region, Public IPs, Private IPs\n")
     # Loop every client config then 
     for clientConfig in clientConfigList:
         currentRegion = clientConfig["region"]
@@ -192,7 +192,8 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
         #config = oci.config.from_file(profile_name=defaultProfile)
         computeClient = oci.core.ComputeClient(clientConfig)
         blockStorageClient = oci.core.BlockstorageClient(clientConfig)
-        
+        networkClient = oci.core.VirtualNetworkClient(clientConfig)
+
         for compartment in totalCompartments:
             currentCompartmentName = compartment.fullname
             currentCompartmentId = compartment.id
@@ -249,6 +250,32 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
                     else:
                         blockVolumes = " & ".join(blockVolumeList)
                 
+                publicIpList = []
+                privateIpList = []
+                vnicAttachList = computeClient.list_vnic_attachments(compartment_id=currentCompartmentId,availability_domain=instanceAd,instance_id=instanceId).data
+                if vnicAttachList:
+                    for vnicAttach in vnicAttachList:
+                        vnic = networkClient.get_vnic(vnic_id=vnicAttach.vnic_id).data
+                        pubIp = vnic.public_ip
+                        priIp = vnic.private_ip
+                        if pubIp:
+                            publicIpList.append(pubIp)
+                        if priIp:
+                            privateIpList.append(priIp)
+                
+                publicIPs = ""
+                if publicIpList:
+                    if len(publicIpList) == 1:
+                        publicIPs = publicIpList[0]
+                    else:
+                        publicIPs = " | ".join(publicIpList)
+                
+                privateIPs = ""
+                if privateIpList:
+                    if len(privateIpList) == 1:
+                        privateIPs = privateIpList[0]
+                    else:
+                        privateIPs = " | ".join(privateIpList)
 
                 state = instance.lifecycle_state
                 displayName = instance.display_name
@@ -256,7 +283,7 @@ def collectComputeInstances(clientConfigList, chckCompartmentList, suffix):
                 ocpus = shapeConfig.ocpus
                 ram = shapeConfig.memory_in_gbs
                 shape = instance.shape
-                instancesCsvFile.write(f"{displayName},{state},{ocpus},{ram},{shape},{bootVolumeDesc},{blockVolumes},{currentCompartmentName},{currentRegion}\n")
+                instancesCsvFile.write(f"{displayName},{state},{ocpus},{ram},{shape},{bootVolumeDesc},{blockVolumes},{currentCompartmentName},{currentRegion},{publicIPs},{privateIPs}\n")
                 instancesCsvFile.flush()
             
     # close csv file
